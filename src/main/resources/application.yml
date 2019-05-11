@@ -1,0 +1,98 @@
+## 服务属性 ##
+service:
+  application:
+    ip: 127.0.0.1
+  mysql:
+    ip: 127.0.0.1
+    database: xxx
+    username: xxx
+    password: xxx
+  redis:
+    host: 127.0.0.1
+    password:
+  eureka:
+    ip: 127.0.0.1
+    port: 10001
+    username: xxx
+    password: xxx
+  websocket:
+    ip: 127.0.0.1
+    port: 11011
+
+## 应用端口 ##
+server:
+  port: 10011
+
+## 应用名称 ##
+spring:
+  application:
+    name: echo
+  ## 数据源 ##
+  datasource:
+    url: jdbc:mysql://${service.mysql.ip}:3306/${service.mysql.database}?autoReconnect=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    type: com.zaxxer.hikari.HikariDataSource
+    username: ${service.mysql.username}
+    password: ${service.mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      # 一个连接idle状态的最大时长
+      idleTimeout: 600000
+      # 一个连接的生命时长
+      maxLifetime: 1800000
+      # 连接池中允许的最大连接数
+      maximumPoolSize: 60
+      # 连接池中允许的最小连接数
+      minimumIdle: 10
+      # 等待连接池分配连接的最大时长
+      connectionTimeout: 30000
+      # 是否是只读库
+      read-only: false
+  ## Redis ##
+  redis:
+    database: 1
+    host: ${service.redis.host}
+    port: 6379
+    password: ${service.redis.password}
+    timeout: 500
+    jedis:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制）
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: 100
+        # 连接池中的最大空闲连接
+        max-idle: 50
+        # 连接池中的最小空闲连接
+        min-idle: 20
+
+## 注册中心 ##
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${service.eureka.username}:${service.eureka.password}@${service.eureka.ip}:${service.eureka.port}/eureka/
+  instance:
+    instance-id: ${service.websocket.ip}:${service.websocket.port}
+    # 发送心跳频率
+    lease-renewal-interval-in-seconds: 3
+    # 下一次心跳的超时时间，在这个时间内若没收到下一次心跳，则将移除该实例
+    lease-expiration-duration-in-seconds: 10
+    hostname: ${service.application.ip}
+
+## Mybatis ##
+mybatis:
+  # 对应实体类的包名
+  typeAliasesPackage: wang.huaiyu.${spring.application.name}.domain.entity
+  # mapper.xml文件所在位置
+  mapperLocations: classpath:mapper/*.xml
+
+## Feign ##
+feign:
+  # feign 对 hystrix 的支持
+  hystrix:
+    enabled: true
+
+## 日志 ##
+logging:
+  path: /home/log/${spring.application.name}/
+  level:
+    com.soshow.${spring.application.name}: info
